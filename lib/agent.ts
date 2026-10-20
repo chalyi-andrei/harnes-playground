@@ -7,16 +7,16 @@ import { MODELS } from "./models";
 const MAX_STEPS = 10;
 const WORKSPACE = path.join(process.cwd(), "workspace");
 const SYSTEM_PROMPT =
-  "Ты полезный ассистент. Отвечай на языке пользователя. " +
-  "Для свежих фактов и новостей используй поиск в интернете. " +
-  "Для работы с файлами используй инструменты read_file, write_file, edit_file. " +
-  `Сегодня ${new Date().toISOString().slice(0, 10)}.`;
+  "Ти корисний асистент. Відповідай мовою користувача. " +
+  "Для свіжих фактів і новин використовуй пошук в інтернеті. " +
+  "Для роботи з файлами використовуй інструменти read_file, write_file, edit_file. " +
+  `Сьогодні ${new Date().toISOString().slice(0, 10)}.`;
 
 // Tools
 const tools: Anthropic.Tool[] = [
   {
     name: "read_file",
-    description: "Прочитать файл из workspace",
+    description: "Прочитати файл з workspace",
     input_schema: {
       type: "object",
       properties: { path: { type: "string" } },
@@ -25,7 +25,7 @@ const tools: Anthropic.Tool[] = [
   },
   {
     name: "write_file",
-    description: "Записать файл в workspace",
+    description: "Записати файл у workspace",
     input_schema: {
       type: "object",
       properties: { path: { type: "string" }, content: { type: "string" } },
@@ -34,7 +34,7 @@ const tools: Anthropic.Tool[] = [
   },
   {
     name: "edit_file",
-    description: "Заменить фрагмент текста в файле из workspace. old_text должен встречаться в файле ровно один раз.",
+    description: "Замінити фрагмент тексту у файлі з workspace. old_text має траплятися у файлі рівно один раз.",
     input_schema: {
       type: "object",
       properties: { path: { type: "string" }, old_text: { type: "string" }, new_text: { type: "string" } },
@@ -58,20 +58,20 @@ function runTool(name: string, input: any): string {
   if (name === "read_file") return fs.readFileSync(file, "utf8");
   if (name === "write_file") {
     fs.writeFileSync(file, input.content);
-    return "Файл записан";
+    return "Файл записано";
   }
   if (name === "edit_file") {
     const parts = fs.readFileSync(file, "utf8").split(input.old_text);
-    if (parts.length !== 2) throw new Error("old_text должен встречаться в файле ровно один раз");
+    if (parts.length !== 2) throw new Error("old_text має траплятися у файлі рівно один раз");
     fs.writeFileSync(file, parts.join(input.new_text));
-    return "Файл отредактирован";
+    return "Файл відредаговано";
   }
-  return "Нет такого инструмента";
+  return "Немає такого інструмента";
 }
 
 // Harness agent loop
 export async function runAgent(model: string, history: Anthropic.MessageParam[]) {
-  if (!MODELS.some((m) => m.id === model)) throw new Error("Неизвестная модель: " + model);
+  if (!MODELS.some((m) => m.id === model)) throw new Error("Невідома модель: " + model);
 
   const client = new Anthropic(); // ANTHROPIC_API_KEY
   const steps: string[] = [];
@@ -92,9 +92,9 @@ export async function runAgent(model: string, history: Anthropic.MessageParam[])
 
     for (const block of response.content) {
       if (block.type === "text") texts.push(block.text);
-      if (block.type === "server_tool_use") steps.push(`Поиск в интернете: ${JSON.stringify(block.input)}`);
+      if (block.type === "server_tool_use") steps.push(`Пошук в інтернеті: ${JSON.stringify(block.input)}`);
       if (block.type === "web_search_tool_result" && Array.isArray(block.content)) {
-        for (const r of block.content) steps.push(`Источник: ${r.title} — ${r.url}`);
+        for (const r of block.content) steps.push(`Джерело: ${r.title} — ${r.url}`);
       }
     }
 
@@ -107,13 +107,13 @@ export async function runAgent(model: string, history: Anthropic.MessageParam[])
     const results: Anthropic.ToolResultBlockParam[] = [];
     for (const block of response.content) {
       if (block.type !== "tool_use") continue;
-      steps.push(`Вызов: ${block.name} ${JSON.stringify(block.input)}`);
+      steps.push(`Виклик: ${block.name} ${JSON.stringify(block.input)}`);
 
       let result: string;
       try {
         result = runTool(block.name, block.input);
       } catch (e) {
-        result = "Ошибка: " + (e as Error).message;
+        result = "Помилка: " + (e as Error).message;
       }
       steps.push("Результат: " + result);
       results.push({ type: "tool_result", tool_use_id: block.id, content: result });
@@ -123,6 +123,6 @@ export async function runAgent(model: string, history: Anthropic.MessageParam[])
     messages.push({ role: "user", content: results });
   }
 
-  steps.push("Стоп: достигнут лимит шагов");
+  steps.push("Стоп: досягнуто ліміт кроків");
   return { reply: texts.join("\n\n"), steps };
 }

@@ -35,7 +35,7 @@ export default function AiPage() {
   return (
     <div className="mx-auto flex h-[calc(100vh-7rem)] max-w-3xl flex-col rounded-xl border border-slate-200 bg-white shadow-sm">
       <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-        <h1 className="font-semibold">AI-ассистент</h1>
+        <h1 className="font-semibold">AI-асистент</h1>
         <select
           value={model}
           onChange={(e) => setModel(e.target.value)}
@@ -48,7 +48,7 @@ export default function AiPage() {
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
         {messages.length === 0 && (
           <p className="text-center text-sm text-slate-400">
-            Спросите что-нибудь. Агент умеет искать в интернете и работать с файлами в папке workspace.
+            Запитайте що-небудь. Агент уміє шукати в інтернеті та працювати з файлами в папці workspace.
           </p>
         )}
 
@@ -62,7 +62,7 @@ export default function AiPage() {
               <p className="whitespace-pre-wrap">{m.content}</p>
               {m.steps && m.steps.length > 0 && (
                 <details className="mt-2 text-xs text-slate-500">
-                  <summary className="cursor-pointer">Шаги агента ({m.steps.length})</summary>
+                  <summary className="cursor-pointer">Кроки агента ({m.steps.length})</summary>
                   <ul className="mt-1 space-y-1">
                     {m.steps.map((s, j) => <li key={j} className="break-all">{s}</li>)}
                   </ul>
@@ -72,21 +72,21 @@ export default function AiPage() {
           </div>
         ))}
 
-        {loading && <p className="text-sm text-slate-400">Агент думает...</p>}
+        {loading && <p className="text-sm text-slate-400">Агент думає...</p>}
       </div>
 
       <form onSubmit={send} className="flex gap-2 border-t border-slate-200 p-3">
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ваш вопрос..."
+          placeholder="Ваше запитання..."
           className="flex-1 rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-blue-500"
         />
         <button
           disabled={loading}
           className="rounded-lg bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:opacity-50"
         >
-          Отправить
+          Надіслати
         </button>
       </form>
     </div>

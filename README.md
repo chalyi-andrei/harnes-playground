@@ -1,10 +1,24 @@
 # Карта тривог + AI-харнес
 
+![Карта тревог по районам](docs/map.png)
+
+<details>
+<summary>Вся страница со списком областей</summary>
+
+![Страница карты](docs/map-page.png)
+
+</details>
+
+Скриншоты сняты без токена alerts.in.ua (резервный источник ubilling), поэтому на них нет жёлтых зон и шахедов.
+
 Next.js + React + Tailwind. Две страницы:
 
-- **`/` — Карта воздушных тревог.** Области с тревогой подсвечиваются красным, данные обновляются каждые 30 секунд.
-  Данные: открытый API [ubilling.net.ua/aerialalerts](https://ubilling.net.ua/aerialalerts/) (без ключа).
-  Карта: [svg-maps](https://github.com/VictorCazanave/svg-maps) (CC BY 4.0).
+- **`/` — Карта воздушных тревог по районам.** Красный — тревога, светло-красный — тревога в части района (громаде),
+  жёлтый — угроза (жёлтый уровень). Иконки шахедов и ракет — в районах/областях, где объявлена такая угроза.
+  Данные обновляются каждые 30 секунд.
+  Данные: [alerts.in.ua](https://devs.alerts.in.ua/) (бесплатный токен `ALERTS_IN_UA_TOKEN`).
+  Без токена — открытый API [ubilling.net.ua/aerialalerts](https://ubilling.net.ua/aerialalerts/): только «тревога / нет» по областям.
+  Границы районов: [ukrainian_geodata](https://github.com/slawomirmatuszak/ukrainian_geodata) (CC BY 4.0).
 - **`/ai` — Чат с AI-агентом.** Выбор модели (Claude Opus / Sonnet / Haiku), поиск в интернете, работа с файлами в папке `workspace/`.
 
 ## Где что лежит
@@ -14,8 +28,10 @@ Next.js + React + Tailwind. Две страницы:
 | `lib/agent.ts` | Харнес: инструменты + цикл агента |
 | `lib/models.ts` | Список моделей для выбора |
 | `app/page.tsx` | Карта тривог |
+| `lib/regions.ts` | Области и районы карты, типы данных о тревогах |
+| `lib/map-data.json` | SVG-контуры областей и районов (генерируется `node scripts/build-map.mjs`) |
 | `app/ai/page.tsx` | Чат |
-| `app/api/alerts/route.ts` | Прокси к API тревог |
+| `app/api/alerts/route.ts` | Прокси к API тревог (alerts.in.ua или ubilling) |
 | `app/api/agent/route.ts` | Запуск агента |
 
 ## Что такое харнес
@@ -33,7 +49,7 @@ LLM умеет только получить текст и вернуть тек
 ## Запуск
 
 ```
-copy .env.local.example .env.local   (вставь свой ANTHROPIC_API_KEY)
+copy .env.local.example .env.local   (вставь свой ANTHROPIC_API_KEY и, по желанию, ALERTS_IN_UA_TOKEN)
 npm install
 npm run dev
 ```

@@ -5,6 +5,6 @@ export async function POST(req: Request) {
   try {
     return Response.json(await runAgent(model, history));
   } catch (e) {
-    return Response.json({ reply: "Ошибка: " + (e as Error).message, steps: [] });
+    return Response.json({ reply: "Помилка: " + (e as Error).message, steps: [] });
   }
 }
